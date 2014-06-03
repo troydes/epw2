@@ -1,0 +1,9 @@
+2014/05/30
+added input variables: ltetra_elec,ltetra_phon to epwcom, epw_readin, bcast_epw_input
+added tetra.f90: including module and subroutines for tetrahedron method, need to modify the Makefile
+need to figure out each k point belong to which tetrahedron.
+Modify loadkmesh_para:
+1. generate the tetrahedron in ionode
+2. itetra(16,nkstotf/2) : each k point belongs to at most 16 tetrahedron
+3. Modified make_kp_reg: calculate itetra and nktetra
+Plan: for given q, m and n, calculate all weights of the tetrahedron (no need to store band information in tetrahedron)
