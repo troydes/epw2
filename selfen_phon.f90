@@ -463,11 +463,12 @@
                    ENDDO
                  !  CALL mp_barrier()
                    !fill eigenvalues to the tetrahedron
+                       !WRITE(stdout,'(/5x,a)') 'Here reached,7'
                    CALL eigen_tet(ntetra,eprime,tetra_i,tetra_w,nkstotf/2) 
-                 !      WRITE(stdout,'(/5x,a)') 'Here reached,8'
+                       !WRITE(stdout,'(/5x,a)') 'Here reached,8'
                    !fill weights to the tetrahedron
                    CALL weight_tet(nkstotf/2,ntetra,wq,tetra_i,tetra_w,tetra_c,wkt)
-                  !     WRITE(stdout,'(/5x,a)') 'Here reached,9'
+                       !WRITE(stdout,'(/5x,a)') 'Here reached,9'
 !!!!#ifdef __PARA
                  IF (mpime .eq. ionode_id) THEN
                    IF ((iq .eq. 10) .and. (ibnd .eq. 1) .and. (jbnd .eq. 1)) THEN
@@ -476,7 +477,8 @@
                            WRITE(11111,'(a,f13.7)') 'Phonon energy = ',wq
                            DO iii=1,ntetra
                                DO jjj=1,4
-                                   WRITE(11111,'(i4,i6,i4,i6,2f13.7)') imode,iii,jjj,tetra_i(jjj,iii),tetra_w(jjj,iii),tetra_c(jjj,iii)
+                                   WRITE(11111,'(i4,i6,i4,i6,2f13.7)') imode,iii,jjj,tetra_i(jjj,iii),&
+                                                                       tetra_w(jjj,iii),tetra_c(jjj,iii)
                                ENDDO
                            ENDDO
                        ENDIF
@@ -520,8 +522,11 @@
                         IF (etf_mem) then
                            epf = epf17 ( ik,  1, jbnd, ibnd, imode)
                         ELSE !if etf_mem is false, here modification is needed.-BL
-                          ! nrec = (imode-1) * nksqf + ik
-                          ! CALL dasmio ( epf, ibndmax-ibndmin+1, lrepmatf, iunepmatf, nrec, -1)
+                           WRITE(stdout,'(/5x,a)') 'Here reached,6'
+                           nrec = (imode-1) * nksqf + ik
+                          !CALL dasmio ( epf, ibndmax-ibndmin+1, lrepmatf, iunepmatf, nrec, -1)
+                          CALL dasmio ( epf,1, lrepmatf, iunepmatf, nrec, -1)
+                           WRITE(stdout,'(/5x,a)') 'Here reached,7'
                         ENDIF
 
                         IF ( wq .gt. eps_acustic ) THEN
@@ -537,7 +542,8 @@
                             weight = wkf (ikk) * (wgkk - wgkq) * &
                             aimag ( cone / ( ekq - ekk - wq - ci * degaussw0 ) ) 
                             gamma(imode,ismear,iefs,ieptemp) = gamma(imode,ismear,iefs,ieptemp) + weight * g2 
-                            gamma_v(imode,ismear,iefs,ieptemp) = gamma_v (imode,ismear,iefs,ieptemp) + weight * g2 * (1-coskkq(ibnd, jbnd) ) 
+                            gamma_v(imode,ismear,iefs,ieptemp) = gamma_v (imode,ismear,iefs,ieptemp) &
+                                                                + weight * g2 * (1-coskkq(ibnd, jbnd) ) 
                         ! WRITE(6,'(/5x,a)') 'Exact FD occupation number is used'
                         ELSEIF (.not. ltetra_phon) THEN !double-delta approximation
                         ! the below expression is positive-definite, but also an approximation
@@ -547,7 +553,8 @@
                             w0g2 = w0gauss ( ekq / degaussw0, 0) / degaussw0
                             weight = pi * wq * wkf (ikk) * w0g1 * w0g2
                             gamma(imode,ismear,iefs,ieptemp) = gamma(imode,ismear,iefs,ieptemp) + weight * g2 
-                            gamma_v(imode,ismear,iefs,ieptemp) =gamma_v(imode,ismear,iefs,ieptemp) + weight * g2 * (1-coskkq(ibnd, jbnd) ) 
+                            gamma_v(imode,ismear,iefs,ieptemp) =gamma_v(imode,ismear,iefs,ieptemp) &
+                                                                + weight * g2 * (1-coskkq(ibnd, jbnd) ) 
                         !WRITE(6,'(/5x,a)') 'Double delta approximation is used'
                         ELSE !tetrahedron is used
                    !         CALL mp_barrier()
@@ -555,10 +562,14 @@
                             fk =  g2 * (wgkk - wgkq) !Here the weight of k-point is already taken care of in the weights of tetrahedron. Don't overcound
                             iktetra = 1 !search for all tetrahedron that this k-point belongs to
                             DO WHILE (itetra_(1,iktetra,ik) .ne. 0)
-                                gamma(imode,ismear,iefs,ieptemp) =gamma(imode, ismear, iefs, ieptemp) + tetra_c(itetra_(2,iktetra,ik),itetra_(1,iktetra,ik)) * fk * pi 
-                                gamma_v(imode,ismear,iefs,ieptemp) =gamma_v (imode, ismear, iefs, ieptemp) + tetra_c(itetra_(2,iktetra,ik),itetra_(1,iktetra,ik)) * fk * pi * (1-coskkq(ibnd, jbnd) ) 
+                                gamma(imode,ismear,iefs,ieptemp) =gamma(imode, ismear, iefs, ieptemp) &
+                                                + tetra_c(itetra_(2,iktetra,ik),itetra_(1,iktetra,ik)) * fk * pi 
+                                gamma_v(imode,ismear,iefs,ieptemp) =gamma_v (imode, ismear, iefs, ieptemp) &
+                                                + tetra_c(itetra_(2,iktetra,ik),itetra_(1,iktetra,ik)) &
+                                                  * fk * pi * (1-coskkq(ibnd, jbnd) ) 
                                 iktetra = iktetra + 1 !look for the next tetrahedra
-                                if (iktetra .gt. 30) CALL errore('tetra','too many tetrahedron associated with a k-point!',1)
+                                if (iktetra .gt. 30) &
+                                CALL errore('tetra','too many tetrahedron associated with a k-point!',1)
                             ENDDO    
                         ENDIF
                      ENDDO !loop on temperature  
@@ -590,7 +601,9 @@ CALL stop_clock('PH SELF-ENERGY')
           dosef = dos_ef (ngaussw, degaussw0, ef0, etf, wkf, nksf, nbndsub) 
           dosef = dosef / two
           DO ieptemp=1,neptemp
-              WRITE(6,'(/5x,"iq = ",i5," coord.: ", 3f9.5, " wt: ", f9.5, " ieptemp: ", i3, " iefs: ",i3, " ismear: ",i3)') iq, xqf(:,iq) , wqf(iq), ieptemp, iefs, ismear
+              WRITE(6,'(/5x,"iq = ",i5," coord.: ", 3f9.5, " wt: ", f9.5, &
+                    " ieptemp: ", i3, " iefs: ",i3, " ismear: ",i3)') &
+                      iq, xqf(:,iq) , wqf(iq), ieptemp, iefs, ismear
               WRITE(6,'(5x,a)') repeat('-',67)
 !              lambda_tot = 0
               DO imode = 1, nmodes

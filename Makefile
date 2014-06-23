@@ -7,6 +7,7 @@ include make.libs
 # use recursive definitions in Makefile to modify the PATH for modules
 #
 
+DBGFLAGS   = -g -fbacktrace
 IFLAGS   = -I../../include  
 MODFLAGS = -I./ -I../../Modules -I../../iotk/src \
            -I../../PW -I../../PH -I../../PP
@@ -16,6 +17,7 @@ LIBOBJS  = ../../flib/ptools.a ../../flib/flib.a \
 W90LIB   = ../../W90/libwannier.a
 
 EPWOBJS = \
+gethost.o \
 tetra.o \
 a2f.o \
 allocate_epwq.o \
@@ -95,7 +97,7 @@ all : epw
 
 epw : pw ph wannier $(EPWOBJS) $(LIBOBJS)
 	$(LD) -o epw.x $(MODULES) $(PWOBJS) $(PHOBJS) \
-	$(EPWOBJS) $(W90LIB) $(LDFLAGS) $(LIBOBJS) $(LIBS)
+	$(EPWOBJS) $(W90LIB) $(LDFLAGS) $(DBGFLAGS) $(LIBOBJS) $(LIBS)
 	- ( cd ../bin ; ln -fs ../src/epw.x . )
 
 pw : 

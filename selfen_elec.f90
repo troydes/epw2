@@ -193,7 +193,7 @@
                                     ! g2 is Ry^2, wkf must already account for the spin factor
                                     !
                                     IF (wq .gt. eps_acustic) THEN
-                                        if ( constepm .eq. .true. ) then
+                                        if ( constepm .eqv. .true. ) then
                                                 g2 = 0.00000004 / (two*wq) !! assuming g=2.72 meV
                                         else
                                         g2 = abs(epf (jbnd, ibnd))*abs(epf (jbnd, ibnd)) / ( two * wq )
@@ -212,7 +212,8 @@
                 !                   ecutse needs to be defined if it's used 
                 ! @                    if ( abs(ekq-ekk) .gt. ecutse ) weight = 0.d0
                                     !
-                                    sigmar(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = sigmar(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) + g2 * weight                                 
+                                    sigmar(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = sigmar(ibndmin-1+ibnd,ikk, &
+                                                                     ideg, ieptemp, iefs) + g2 * weight                                 
                                     !
                                     weight = wqf(iq) * aimag (                                        &
                                          ( (       wgkq + wgq ) / ( ekk - ( ekq - wq ) - ci * degaussw(ideg) )  +  &
@@ -223,9 +224,14 @@
                                          ( ( one - wgkq + wgq ) / ( ekk - ( ekq + wq ) - ci * degaussw(ideg) ) ) ) 
                 ! @                    if ( abs(ekq-ekk) .gt. ecutse ) weight = 0.d0
                                     !
-                                    sigmai(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = sigmai(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) + g2 * weight
-                                    sigmai_mode_abs(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) = sigmai_mode_abs(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) + g2 * weight_abs
-                                    sigmai_mode_emi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) = sigmai_mode_emi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) + g2 * weight_emi
+                                    sigmai(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = sigmai(ibndmin-1+ibnd,ikk, &
+                                                ideg, ieptemp, iefs) + g2 * weight
+                                    sigmai_mode_abs(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) = &
+                                        sigmai_mode_abs(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) &
+                                                       + g2 * weight_abs
+                                    sigmai_mode_emi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) = &
+                                        sigmai_mode_emi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs, imode) &
+                                                        + g2 * weight_emi
                                     !
                                     ! Z FACTOR: -\frac{\partial\Re\Sigma}{\partial\omega}
                                     !
@@ -236,7 +242,8 @@
                                                                   ( (ekk - ( ekq + wq ))**two + degaussw(ideg)**two )**two )  
                 ! @                    if ( abs(ekq-ekk) .gt. ecutse ) weight = 0.d0
                                     !
-                                    zi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = zi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) + g2 * weight
+                                    zi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) = &
+                                         zi(ibndmin-1+ibnd,ikk, ideg, ieptemp, iefs) + g2 * weight
                                  
                             !
                          ENDDO !jbnd
@@ -363,19 +370,28 @@
                         !        WRITE(stdout, 103) ik, ryd2ev * ekk, ryd2mev * sigmar_all (ibnd,ikk), &
                         !              ryd2mev * sigmai_all (ibnd,ikk),  zi_all (ibnd,ikk)
                                 ekk_all (ibnd,ikk) = ekk
-                                sigmai_all_q (ibnd,ikk, ideg, ieptemp, iefs)  = sigmai_all_q (ibnd,ikk, ideg, ieptemp, iefs) + sigmai_all (ibnd,ikk, ideg, ieptemp, iefs)                               
+                                sigmai_all_q (ibnd,ikk, ideg, ieptemp, iefs)  = &
+                                        sigmai_all_q (ibnd,ikk, ideg, ieptemp, iefs) &
+                                        + sigmai_all (ibnd,ikk, ideg, ieptemp, iefs)                               
                        enddo
                      enddo
                 !! sum contribution from each iq to global sigmai
               enddo
        !
-      if ( groupq .eq. .true. ) then
+      if ( groupq .eqv. .true. ) then
                         !! group phonons into group-ids
                                 do ideg = 1, ndeg
                                         do ieptemp =1, neptemp
                                                 do iefs = 1, nefsweep
-                                                        sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) = sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) + sigmai_all_mode_abs (ibnd,ikk, ideg, ieptemp, iefs, :)
-                                                        sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) = sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) + sigmai_all_mode_emi (ibnd,ikk, ideg, ieptemp, iefs, :)
+                                                sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, &
+                                                        gpid(iq),:) &
+                                                = sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) &
+                                                        + sigmai_all_mode_abs (ibnd,ikk, ideg, ieptemp, iefs, :)
+                                                
+                                                sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, &
+                                                        gpid(iq),:) &
+                                                = sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, gpid(iq), :) &
+                                                        + sigmai_all_mode_emi (ibnd,ikk, ideg, ieptemp, iefs, :)
                                                         !! last column is the nmodes
                                                 enddo
                                         enddo
@@ -384,8 +400,12 @@
                                 do ideg = 1, ndeg
                                         do ieptemp =1, neptemp
                                                 do iefs = 1, nefsweep
-                                                        sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, 1, :) = sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, 1, :) + sigmai_all_mode_abs (ibnd,ikk, ideg, ieptemp, iefs, :) !! last column is nmodes
-                                                        sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, 1, :) = sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, 1, :) + sigmai_all_mode_emi (ibnd,ikk, ideg, ieptemp, iefs, :) !! single group
+                                                        sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, 1, :) &
+                                                        = sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, 1, :)&
+                                                         + sigmai_all_mode_abs (ibnd,ikk, ideg, ieptemp, iefs, :) !! last column is nmodes
+                                                        sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, 1, :) & 
+                                                        = sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, 1, :)&
+                                                         + sigmai_all_mode_emi (ibnd,ikk, ideg, ieptemp, iefs, :) !! single group
                                                         !! last column is the nmodes
                                                 enddo
                                         enddo
@@ -393,11 +413,12 @@
                         endif
     ENDDO
     
-    if ( perphon .eq. .true. ) then
+    if ( perphon .eqv. .true. ) then
             do ideg = 1, ndeg
                 do ieptemp =1, neptemp
                         do iefs = 1, nefsweep
-                                write(72, 107) iq, ik, ideg, ieptemp, iefs, (ryd2mev *sigmai_all (ibnd,ikk, ideg, ieptemp, iefs) , ibnd=ibndmin,ibndmax)
+                                write(72, 107) iq, ik, ideg, ieptemp, iefs, &
+                                (ryd2mev *sigmai_all (ibnd,ikk, ideg, ieptemp, iefs) , ibnd=ibndmin,ibndmax)
                         enddo
                 enddo
             enddo

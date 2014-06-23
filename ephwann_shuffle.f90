@@ -580,7 +580,8 @@
          etf_global(:,lower_bnd:upper_bnd)=etf(:,:)
          IF((upper_bnd-lower_bnd+1) .ne. nksf) THEN
 #ifdef __PARA
-             WRITE(stdout, '(/5x,"tetra: number of k-points in this pool is inconsistent",i10,i10,i3)') upper_bnd-lower_bnd+1,nksf,my_pool_id
+             WRITE(stdout, '(/5x,"tetra: number of k-points in this pool is inconsistent",i10,i10,i3)') & 
+                upper_bnd-lower_bnd+1,nksf,my_pool_id
 #else
              WRITE(stdout, '(/5x,"tetra: number of k-points is inconsistent",i10,i10)') upper_bnd-lower_bnd+1,nksf
 #endif
@@ -674,14 +675,21 @@
                         ikq = ikk + 1
                      ENDIF
                      !
-                     WRITE(stdout,'(/5x,"ik = ",i5," coord.: ", 3f9.5, " Deg:",i4," T:", i4, " Ef:",i4)') ik, xkf_all(:,ikk), ideg, ieptemp, iefs 
+                     WRITE(stdout,'(/5x,"ik = ",i5," coord.: ", 3f9.5, " Deg:",i4," T:", i4, " Ef:",i4)') & 
+                                ik, xkf_all(:,ikk), ideg, ieptemp, iefs 
                      WRITE(stdout,'(5x,a)') repeat('-',67)
                      !
                      DO ibnd = ibndmin, ibndmax
                         WRITE(stdout, 106) ik, ryd2ev * ekk_all(ibnd,ikk), ryd2mev * sigmai_all_q (ibnd,ikk, ideg, ieptemp, iefs)
                         do igp = 1, nqgroup
-                                write(73,'(i6, 5i4, 100e12.4)') ik, ibnd, igp, iefs, ieptemp, ideg, ryd2ev * ekk_all(ibnd,ikk), (ryd2mev *sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, igp, imode), imode = 1, nmodes)
-                                write(74,'(i6, 5i4, 100e12.4)') ik, ibnd, igp, iefs, ieptemp, ideg, ryd2ev * ekk_all(ibnd,ikk), (ryd2mev *sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, igp, imode), imode = 1, nmodes)
+                                write(73,'(i6, 5i4, 100e12.4)') ik, ibnd, igp, iefs, ieptemp, ideg, &
+                                ryd2ev * ekk_all(ibnd,ikk), &
+                                (ryd2mev *sigmai_all_gpq_abs (ibnd, ikk, ideg, ieptemp, iefs, igp, imode),&
+                                 imode = 1, nmodes)
+                                write(74,'(i6, 5i4, 100e12.4)') ik, ibnd, igp, iefs, ieptemp, ideg, &
+                                ryd2ev * ekk_all(ibnd,ikk), &
+                                (ryd2mev *sigmai_all_gpq_emi (ibnd, ikk, ideg, ieptemp, iefs, igp, imode), &
+                                imode = 1, nmodes)
                         enddo                   
                      ENDDO
                     WRITE(stdout,'(5x,a/)') repeat('-',67)

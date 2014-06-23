@@ -423,7 +423,7 @@
   fsthick = fsthick /ryd2eV !fsthick from eV to Ryd
   write(stdout, *)
   write(stdout, *)
-  if (groupq .eq. .true.) then
+  if (groupq .eqv. .true.) then
           write(stdout, *) 'The electron self energy will be output into groups according to meshfq.dat '
                 write(stdout, *)          
   endif
@@ -470,7 +470,7 @@ xq(:) = 0.d0
      nk3 = nk3tmp
 #endif
 
-  IF (constepm .eq. .true.) then
+  IF (constepm .eqv. .true.) then
         write(stdout, *) "Warning: Debug mode, constant ep matrix = 2.72 meV will be used"
   endif
   !

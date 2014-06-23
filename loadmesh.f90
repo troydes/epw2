@@ -216,7 +216,10 @@ SUBROUTINE loadkmesh_para
      WRITE(stdout,'(/5x,a)') 'Tetrahedron method (on k mesh) is to be used' 
      ntetra=6*nkf1*nkf2*nkf3
      WRITE(stdout,'(/5x,a,i10)') 'Total number of tetrahedron = ',ntetra
-     ALLOCATE(tetra_i(4,ntetra),tetra_c(4,ntetra),tetra_w(4,ntetra),wkt(nkstotf/2),itetra(2,30,nkstotf/2))
+     ALLOCATE(tetra_i(4,ntetra),tetra_c(4,ntetra),tetra_w(4,ntetra),wkt(nkstotf/2),itetra(2,30,nkstotf/2),stat=ierr)
+        if ( ierr /= 0 ) then
+        write(*,*) 'Oops, allocation failed!'
+        endif
      CALL make_kp_reg(nkf1,nkf2,nkf3,wkt,ntetra,tetra_i, itetra) 
      WRITE(stdout,'(/5x,a)') 'Tetrahedron have been successfully generated' 
      WRITE(stdout,'(/5x,a)') 'Here reached,2'
@@ -360,7 +363,7 @@ SUBROUTINE loadqmesh_serial
      !
      WRITE (stdout, *) '     Using q-mesh file: ', trim(filqf)
      OPEN ( unit = iunqf, file = filqf, status = 'old', form = 'formatted', action='read')
-     if ( groupq .eq. .false.) then
+     if ( groupq .eqv. .false.) then
                                 READ(iunqf, *) nxqf, crystorcart !! addition: mesh in cart 0 or crystal 1
                  else
                                 READ(iunqf, *) nxqf, crystorcart, nqgroup !! addition: mesh in cart 0 or crystal 1, if output phonon groups, then need nqgroup as well
@@ -370,7 +373,7 @@ SUBROUTINE loadqmesh_serial
      endif
      ALLOCATE (xqf(3, nxqf), wqf(nxqf), gpid(nxqf))
      DO iq = 1, nxqf
-                if ( groupq .eq. .false.) then
+                if ( groupq .eqv. .false.) then
                 READ (iunqf, *) xqf (:, iq), wqf(iq)
         else
                 READ (iunqf, *) xqf (:, iq), wqf(iq), gpid(iq) !! if output in groups of phonons, then read in group-id as well
@@ -385,9 +388,9 @@ SUBROUTINE loadqmesh_serial
      endif
       
      !
- ELSEIF ( (nqf1.ne.0) .and. (nqf2.ne.0) .and. (nqf3.ne.0) .and. (groupq .eq. .true.) ) THEN ! group phonon can only be done with input meshfq
+ ELSEIF ( (nqf1.ne.0) .and. (nqf2.ne.0) .and. (nqf3.ne.0) .and. (groupq .eqv. .true.) ) THEN ! group phonon can only be done with input meshfq
           CALL errore('loadqmesh_serial', "Error: Group phonon can only be done with input meshfq", 1)
- ELSEIF ( (nqf1.ne.0) .and. (nqf2.ne.0) .and. (nqf3.ne.0) .and. (groupq .eq. .false.)) THEN ! generate grid
+ ELSEIF ( (nqf1.ne.0) .and. (nqf2.ne.0) .and. (nqf3.ne.0) .and. (groupq .eqv. .false.)) THEN ! generate grid
     IF (mp_mesh_q) THEN
        ! get size of the mp_mesh in the irr wedge
        WRITE (stdout, '(a,3i4)') '     Using uniform q-mesh: ', nqf1, nqf2, nqf3

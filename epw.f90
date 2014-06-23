@@ -36,6 +36,7 @@
   !
   implicit none
   !
+  integer sleepi
   CHARACTER (LEN=12)   :: code = 'EPW'
   !
   version_number = '2.3.5'
@@ -48,7 +49,12 @@
   gamma_only = .FALSE.
   !
   CALL startup( nd_nmbr, code, version_number )
+  CALL gethost
   !
+  !sleepi=0
+  !do while (sleepi.eq.0)
+      !call sleep(100)
+  !end do
   WRITE( stdout, '(/5x,"Ultrasoft (Vanderbilt) Pseudopotentials")' )
   !
   ! read in the input file
